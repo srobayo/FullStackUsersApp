@@ -72,6 +72,16 @@ When running, the current development server is available at:
 - API: `http://127.0.0.1:3000/api/v1/users`
 - Swagger UI: `http://127.0.0.1:3000/swagger-ui/`
 
+If the OpenAPI JSON responds but Swagger UI returns `404` after moving or renaming the repository, remove the stale Rust build cache and rebuild:
+
+```bash
+cd axum-server
+cargo clean
+cargo run
+```
+
+In debug builds, Swagger UI assets can retain an absolute path from the previous checkout location.
+
 ## Run the Android client
 
 Open `HandleUsers/` in Android Studio or build it from that directory:

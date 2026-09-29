@@ -104,6 +104,13 @@ Este archivo debe actualizarse cuando se tome una decisión arquitectónica impo
 - Se verificó el ciclo crear, actualizar y eliminar con un usuario temporal.
 - El usuario temporal se eliminó y la base terminó nuevamente con 9 usuarios y la huella original.
 
+### 2026-09-29 — Caché de Swagger UI después de mover el repositorio
+
+- OpenAPI respondía en `/api-docs/openapi.json`, pero `/swagger-ui/` y sus recursos devolvían `404`.
+- El binario debug conservaba una ruta absoluta hacia los recursos generados de Swagger en la ubicación anterior del proyecto.
+- `cargo clean` seguido de una recompilación regeneró los recursos con la ruta actual.
+- Se verificaron con HTTP 200 `/swagger-ui/`, `/swagger-ui/index.html`, `/swagger-ui/swagger-ui.css` y `/api-docs/openapi.json`.
+
 ## Pendientes conocidos
 
 ### Higiene del repositorio
