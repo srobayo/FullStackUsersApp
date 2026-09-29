@@ -15,19 +15,49 @@ The backend exposes a JSON CRUD API under `/api/v1/users`. The mobile client con
 ## Prerequisites
 
 - Rust toolchain and Cargo
-- PostgreSQL running locally
+- Docker Desktop or another Docker Engine with Compose
 - JDK compatible with the included Gradle project
 - Android Studio and the Android SDK for Android development
 - macOS and Xcode for iOS development
 
-The PostgreSQL database is currently expected at the connection string configured by `DATABASE_URL`. If that variable is absent, the backend uses its existing local development default.
+## Local configuration
+
+Create a local environment file from the committed example:
+
+```bash
+cp .env.example .env
+```
+
+The `.env` file is ignored by Git. Its default values are intended only for local development and must not be reused in a public or production environment.
+
+`compose.yaml` defines PostgreSQL 15, a persistent named volume, and a readiness health check. Validate the resolved configuration with:
+
+```bash
+docker compose --env-file .env.example config
+```
+
+The existing development database currently uses port `5433`. Do not start the new Compose service at the same time until the initial SQL migration has been added and the database transition is ready. Starting the new service now would also create an empty database without the required `users` table.
+
+When the migration step is complete, the local database lifecycle will be:
+
+```bash
+docker compose up -d postgres
+docker compose ps
+docker compose down
+```
+
+`docker compose down` preserves the named database volume. Avoid `docker compose down -v` unless deleting all local database data is intentional.
+
+The backend reads its connection string from `DATABASE_URL`. If that variable is absent, it currently uses the same local development values as `.env.example`.
 
 ## Run the backend
 
 From `axum-server/`:
 
 ```bash
-export DATABASE_URL="postgres://user:password@127.0.0.1:5433/simple_api"
+set -a
+source ../.env
+set +a
 cargo run
 ```
 
@@ -70,12 +100,10 @@ Client checks, from `HandleUsers/`:
 
 ## Current development roadmap
 
-1. Consolidate and document the monorepo.
-2. Add a reproducible Docker Compose environment for PostgreSQL.
-3. Introduce versioned SQL migrations.
-4. Move backend and client configuration out of source-code defaults.
-5. Expand backend, HTTP contract, ViewModel, and UI tests.
-6. Add health checks, request tracing, timeouts, and graceful shutdown.
-7. Add continuous integration.
+1. Introduce versioned SQL migrations and switch safely to the monorepo database.
+2. Move backend and client configuration out of source-code defaults.
+3. Expand backend, HTTP contract, ViewModel, and UI tests.
+4. Add health checks, request tracing, timeouts, and graceful shutdown.
+5. Add continuous integration.
 
 Repository-wide development conventions are documented in [AGENTS.md](./AGENTS.md).

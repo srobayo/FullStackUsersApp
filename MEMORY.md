@@ -67,6 +67,15 @@ Este archivo debe actualizarse cuando se tome una decisión arquitectónica impo
 - `cargo fmt --check`, `cargo check` y Clippy con `-D warnings` terminaron correctamente.
 - `cargo test` terminó correctamente con 3 pruebas superadas.
 
+### 2026-09-29 — Entorno PostgreSQL declarado en el monorepo
+
+- Se añadió `compose.yaml` con PostgreSQL 15, volumen persistente y health check.
+- Se añadió `.env.example` con la configuración de desarrollo local y `DATABASE_URL`.
+- La configuración se valida sin iniciar contenedores mediante `docker compose --env-file .env.example config`.
+- El servicio nuevo no se ha iniciado porque el puerto `5433` está ocupado por el contenedor `db` del proyecto anterior `axumlive`.
+- El contenedor anterior utiliza el volumen `axumlive_pg_data`; no debe borrarse durante la transición.
+- El futuro volumen del monorepo es independiente y no contendrá la tabla `users` hasta incorporar la migración inicial.
+
 ## Pendientes conocidos
 
 ### Higiene del repositorio
@@ -75,14 +84,13 @@ Este archivo debe actualizarse cuando se tome una decisión arquitectónica impo
 
 ### Próximas mejoras recomendadas
 
-1. Añadir un entorno PostgreSQL reproducible con `compose.yaml`.
-2. Añadir `.env.example` sin credenciales reales.
-3. Introducir migraciones SQL versionadas.
-4. Centralizar la configuración del backend.
-5. Configurar URLs del servidor por plataforma y entorno en el cliente.
-6. Ampliar pruebas del backend y añadir pruebas del ViewModel.
-7. Añadir health checks, trazabilidad de peticiones y apagado ordenado.
-8. Añadir integración continua.
+1. Introducir migraciones SQL versionadas.
+2. Probar las migraciones en la base nueva y realizar la transición controlada desde el contenedor anterior.
+3. Centralizar la configuración del backend.
+4. Configurar URLs del servidor por plataforma y entorno en el cliente.
+5. Ampliar pruebas del backend y añadir pruebas del ViewModel.
+6. Añadir health checks, trazabilidad de peticiones y apagado ordenado.
+7. Añadir integración continua.
 
 ## Reglas para mantener este archivo
 
