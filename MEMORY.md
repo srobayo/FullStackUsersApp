@@ -111,6 +111,19 @@ Este archivo debe actualizarse cuando se tome una decisión arquitectónica impo
 - `cargo clean` seguido de una recompilación regeneró los recursos con la ruta actual.
 - Se verificaron con HTTP 200 `/swagger-ui/`, `/swagger-ui/index.html`, `/swagger-ui/swagger-ui.css` y `/api-docs/openapi.json`.
 
+### 2026-09-29 — Configuración tipada del backend
+
+- Se añadió `axum-server/src/config.rs` con una estructura `Settings` independiente del dominio.
+- `DATABASE_URL` pasó a ser obligatoria y dejó de tener credenciales predeterminadas en el código.
+- `SERVER_HOST`, `SERVER_PORT` y `DATABASE_MAX_CONNECTIONS` son configurables y tienen valores locales predeterminados.
+- La configuración se valida antes de abrir el pool o el socket HTTP.
+- Los logs dejaron de imprimir la URL de PostgreSQL y, por tanto, su contraseña.
+- `main.rs` usa los módulos exportados por la librería en lugar de volver a declararlos.
+- Se añadieron 5 pruebas unitarias para ausencia de `DATABASE_URL`, valores predeterminados, valores personalizados, puerto inválido y pool con cero conexiones.
+- El conjunto completo terminó con 8 pruebas superadas; formato, compilación y Clippy estricto también pasaron.
+- El arranque sin `DATABASE_URL` falló de manera controlada y el arranque con `.env.example` funcionó.
+- Se verificaron 9 usuarios, Swagger UI y OpenAPI sobre la configuración tipada.
+
 ## Pendientes conocidos
 
 ### Higiene del repositorio
@@ -119,11 +132,10 @@ Este archivo debe actualizarse cuando se tome una decisión arquitectónica impo
 
 ### Próximas mejoras recomendadas
 
-1. Centralizar la configuración del backend.
-2. Configurar URLs del servidor por plataforma y entorno en el cliente.
-3. Ampliar pruebas del backend y añadir pruebas del ViewModel.
-4. Añadir health checks, trazabilidad de peticiones y apagado ordenado.
-5. Añadir integración continua.
+1. Configurar URLs del servidor por plataforma y entorno en el cliente.
+2. Ampliar pruebas del backend y añadir pruebas del ViewModel.
+3. Añadir health checks, trazabilidad de peticiones y apagado ordenado.
+4. Añadir integración continua.
 
 ## Reglas para mantener este archivo
 

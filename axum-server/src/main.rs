@@ -1,17 +1,12 @@
 use sqlx::postgres::PgPoolOptions;
-use std::env;
 use std::sync::Arc;
 use tokio::net::TcpListener;
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
 
-mod application;
-mod domain;
-mod infrastructure;
-mod presentation;
-
-use application::UserService;
-use infrastructure::PostgresUserRepository;
-use presentation::{AppState, create_router};
+use axum_server::application::UserService;
+use axum_server::config::Settings;
+use axum_server::infrastructure::PostgresUserRepository;
+use axum_server::presentation::{AppState, create_router};
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -26,14 +21,19 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     tracing::info!("Iniciando Servidor Axum con Arquitectura Limpia y PostgreSQL...");
 
-    // 2. Conexión a la Base de Datos PostgreSQL en Docker
-    let db_url = env::var("DATABASE_URL")
-        .unwrap_or_else(|_| "postgres://user:password@127.0.0.1:5433/simple_api".to_string());
+    // 2. Cargar y validar la configuración del proceso.
+    let settings = Settings::from_env()?;
+    tracing::info!(
+        server_address = %settings.server_address,
+        database_max_connections = settings.database_max_connections,
+        "Configuración cargada correctamente."
+    );
 
-    tracing::info!("Conectando a PostgreSQL en {}", db_url);
+    // 3. Conexión a la Base de Datos PostgreSQL en Docker.
+    tracing::info!("Conectando a PostgreSQL.");
     let pool = PgPoolOptions::new()
-        .max_connections(5)
-        .connect(&db_url)
+        .max_connections(settings.database_max_connections)
+        .connect(&settings.database_url)
         .await?;
 
     tracing::info!("Conexión a PostgreSQL establecida con éxito.");
@@ -42,7 +42,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     sqlx::migrate!("./migrations").run(&pool).await?;
     tracing::info!("Migraciones de base de datos aplicadas correctamente.");
 
-    // 3. Inyección de Dependencias (Composition Root)
+    // 4. Inyección de Dependencias (Composition Root)
     // Instanciar el adaptador de infraestructura de PostgreSQL
     let user_repo = Arc::new(PostgresUserRepository::new(pool));
 
@@ -52,17 +52,19 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     // Crear el estado compartido de la aplicación web
     let app_state = AppState { user_service };
 
-    // 4. Crear el Router de Axum con endpoints y Swagger UI
+    // 5. Crear el Router de Axum con endpoints y Swagger UI
     let app = create_router(app_state);
 
-    // 5. Iniciar el servidor HTTP Tokio
-    let addr = "127.0.0.1:3000";
-    let listener = TcpListener::bind(addr).await?;
+    // 6. Iniciar el servidor HTTP Tokio
+    let listener = TcpListener::bind(settings.server_address).await?;
 
-    tracing::info!("🚀 Servidor ejecutándose exitosamente en http://{}", addr);
+    tracing::info!(
+        "🚀 Servidor ejecutándose exitosamente en http://{}",
+        settings.server_address
+    );
     tracing::info!(
         "📚 Documentación Swagger UI disponible en http://{}/swagger-ui/",
-        addr
+        settings.server_address
     );
 
     axum::serve(listener, app).await?;

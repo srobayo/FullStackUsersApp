@@ -30,6 +30,18 @@ cp .env.example .env
 
 The `.env` file is ignored by Git. Its default values are intended only for local development and must not be reused in a public or production environment.
 
+Backend settings:
+
+| Variable | Required | Default | Purpose |
+| --- | --- | --- | --- |
+| `DATABASE_URL` | Yes | None | PostgreSQL connection string |
+| `SERVER_HOST` | No | `127.0.0.1` | HTTP bind address |
+| `SERVER_PORT` | No | `3000` | HTTP port |
+| `DATABASE_MAX_CONNECTIONS` | No | `5` | Maximum PostgreSQL pool connections |
+| `RUST_LOG` | No | Application default | Logging filter |
+
+The backend validates these values before connecting to PostgreSQL. It exits with a clear error when `DATABASE_URL` is missing or when a numeric/network value is invalid. Connection credentials are not printed in application logs.
+
 `compose.yaml` defines PostgreSQL 15, a persistent named volume, and a readiness health check. Validate the resolved configuration with:
 
 ```bash
@@ -53,8 +65,6 @@ Check the active database with:
 ```bash
 docker compose ps
 ```
-
-The backend reads its connection string from `DATABASE_URL`. If that variable is absent, it currently uses the same local development values as `.env.example`.
 
 ## Run the backend
 
