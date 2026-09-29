@@ -36,9 +36,7 @@ The `.env` file is ignored by Git. Its default values are intended only for loca
 docker compose --env-file .env.example config
 ```
 
-The existing development database currently uses port `5433`. Do not start the new Compose service at the same time until the initial SQL migration has been added and the database transition is ready. Starting the new service now would also create an empty database without the required `users` table.
-
-When the migration step is complete, the local database lifecycle will be:
+The backend applies the versioned SQL migrations from `axum-server/migrations/` after connecting to PostgreSQL and before accepting HTTP requests. The initial migration uses `IF NOT EXISTS` only to adopt the verified legacy `users` schema during this transition; future migrations should describe explicit schema changes. The normal local database lifecycle is:
 
 ```bash
 docker compose up -d postgres
@@ -47,6 +45,21 @@ docker compose down
 ```
 
 `docker compose down` preserves the named database volume. Avoid `docker compose down -v` unless deleting all local database data is intentional.
+
+The database from the project that preceded this monorepo still occupies port `5433`. Until the controlled transition is completed, the monorepo database can be tested alongside it on port `5434`:
+
+```bash
+POSTGRES_PORT=5434 docker compose --env-file .env.example up -d --wait postgres
+
+cd axum-server
+DATABASE_URL=postgres://user:password@127.0.0.1:5434/simple_api cargo run
+```
+
+Stop only the monorepo test database from the repository root with:
+
+```bash
+POSTGRES_PORT=5434 docker compose --env-file .env.example stop postgres
+```
 
 The backend reads its connection string from `DATABASE_URL`. If that variable is absent, it currently uses the same local development values as `.env.example`.
 
@@ -100,7 +113,7 @@ Client checks, from `HandleUsers/`:
 
 ## Current development roadmap
 
-1. Introduce versioned SQL migrations and switch safely to the monorepo database.
+1. Switch safely from the previous database container to the monorepo database.
 2. Move backend and client configuration out of source-code defaults.
 3. Expand backend, HTTP contract, ViewModel, and UI tests.
 4. Add health checks, request tracing, timeouts, and graceful shutdown.

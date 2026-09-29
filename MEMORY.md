@@ -72,9 +72,23 @@ Este archivo debe actualizarse cuando se tome una decisión arquitectónica impo
 - Se añadió `compose.yaml` con PostgreSQL 15, volumen persistente y health check.
 - Se añadió `.env.example` con la configuración de desarrollo local y `DATABASE_URL`.
 - La configuración se valida sin iniciar contenedores mediante `docker compose --env-file .env.example config`.
-- El servicio nuevo no se ha iniciado porque el puerto `5433` está ocupado por el contenedor `db` del proyecto anterior `axumlive`.
+- El puerto `5433` sigue ocupado por el contenedor `db` del proyecto anterior `axumlive`.
 - El contenedor anterior utiliza el volumen `axumlive_pg_data`; no debe borrarse durante la transición.
-- El futuro volumen del monorepo es independiente y no contendrá la tabla `users` hasta incorporar la migración inicial.
+- El volumen del monorepo es independiente del volumen anterior.
+
+### 2026-09-29 — Primera migración SQL versionada
+
+- Se añadió `axum-server/migrations/0001_create_users.sql` con el esquema actual de `users`.
+- El esquema de la tabla anterior se inspeccionó y coincide con la migración: UUID, nombre, correo único y estado activo.
+- La migración inicial usa `IF NOT EXISTS` exclusivamente para adoptar de forma compatible ese esquema heredado verificado.
+- Se añadió `axum-server/build.rs` para que Cargo vuelva a compilar cuando cambie el directorio de migraciones.
+- El backend ejecuta las migraciones de SQLx después de conectarse y antes de aceptar peticiones.
+- La migración se probó en un PostgreSQL 15 limpio del monorepo usando temporalmente el puerto `5434`.
+- SQLx registró correctamente la versión 1, `create users`, en `_sqlx_migrations`.
+- La API respondió `[]` a `GET /api/v1/users` sobre la base recién migrada.
+- Un segundo arranque contra el mismo volumen confirmó que la migración es repetible y no intenta reaplicarse.
+- El contenedor de prueba quedó detenido y su volumen `fullstack-users-app_postgres_data` se conservó.
+- El contenedor anterior continuó funcionando en el puerto `5433` durante toda la prueba.
 
 ## Pendientes conocidos
 
@@ -84,13 +98,12 @@ Este archivo debe actualizarse cuando se tome una decisión arquitectónica impo
 
 ### Próximas mejoras recomendadas
 
-1. Introducir migraciones SQL versionadas.
-2. Probar las migraciones en la base nueva y realizar la transición controlada desde el contenedor anterior.
-3. Centralizar la configuración del backend.
-4. Configurar URLs del servidor por plataforma y entorno en el cliente.
-5. Ampliar pruebas del backend y añadir pruebas del ViewModel.
-6. Añadir health checks, trazabilidad de peticiones y apagado ordenado.
-7. Añadir integración continua.
+1. Realizar la transición controlada desde el contenedor anterior hacia la base del monorepo.
+2. Centralizar la configuración del backend.
+3. Configurar URLs del servidor por plataforma y entorno en el cliente.
+4. Ampliar pruebas del backend y añadir pruebas del ViewModel.
+5. Añadir health checks, trazabilidad de peticiones y apagado ordenado.
+6. Añadir integración continua.
 
 ## Reglas para mantener este archivo
 

@@ -38,6 +38,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     tracing::info!("Conexión a PostgreSQL establecida con éxito.");
 
+    // Aplicar las migraciones versionadas antes de aceptar peticiones.
+    sqlx::migrate!("./migrations").run(&pool).await?;
+    tracing::info!("Migraciones de base de datos aplicadas correctamente.");
+
     // 3. Inyección de Dependencias (Composition Root)
     // Instanciar el adaptador de infraestructura de PostgreSQL
     let user_repo = Arc::new(PostgresUserRepository::new(pool));
