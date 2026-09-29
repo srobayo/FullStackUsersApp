@@ -3,7 +3,7 @@ package com.example.handleusers.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.handleusers.models.User
-import com.example.handleusers.network.AxumApiClient
+import com.example.handleusers.repository.UserRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -51,13 +51,12 @@ data class UserUiState(
 }
 
 class UserViewModel(
-    initialServerUrl: String
+    initialServerUrl: String,
+    private val userRepository: UserRepository
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(UserUiState(serverUrl = initialServerUrl))
     val uiState: StateFlow<UserUiState> = _uiState.asStateFlow()
-
-    private var apiClient: AxumApiClient = AxumApiClient(initialServerUrl)
 
     init {
         loadUsers()
@@ -65,7 +64,7 @@ class UserViewModel(
 
     fun updateServerUrl(newUrl: String) {
         val cleanUrl = newUrl.trim()
-        apiClient.baseUrl = cleanUrl
+        userRepository.updateServerUrl(cleanUrl)
         _uiState.update { it.copy(serverUrl = cleanUrl, isServerConnected = null) }
         loadUsers()
     }
@@ -78,7 +77,7 @@ class UserViewModel(
                 _uiState.update { it.copy(isLoading = true, errorMessage = null) }
             }
 
-            val result = apiClient.getUsers()
+            val result = userRepository.getUsers()
 
             result.fold(
                 onSuccess = { userList ->
@@ -119,7 +118,7 @@ class UserViewModel(
         viewModelScope.launch {
             _uiState.update { it.copy(isActionInProgress = true, errorMessage = null) }
 
-            val result = apiClient.createUser(name = name.trim(), email = email.trim())
+            val result = userRepository.createUser(name = name.trim(), email = email.trim())
 
             result.fold(
                 onSuccess = { createdUser ->
@@ -158,7 +157,7 @@ class UserViewModel(
         viewModelScope.launch {
             _uiState.update { it.copy(isActionInProgress = true, errorMessage = null) }
 
-            val result = apiClient.updateUser(
+            val result = userRepository.updateUser(
                 id = id,
                 name = name.trim(),
                 email = email.trim(),
@@ -193,7 +192,7 @@ class UserViewModel(
     fun toggleUserActive(user: User) {
         viewModelScope.launch {
             val updatedActive = !user.active
-            val result = apiClient.updateUser(
+            val result = userRepository.updateUser(
                 id = user.id,
                 name = null,
                 email = null,
@@ -217,7 +216,7 @@ class UserViewModel(
         viewModelScope.launch {
             _uiState.update { it.copy(isActionInProgress = true, errorMessage = null) }
 
-            val result = apiClient.deleteUser(id)
+            val result = userRepository.deleteUser(id)
 
             result.fold(
                 onSuccess = {
@@ -247,13 +246,13 @@ class UserViewModel(
     fun testServerConnection() {
         viewModelScope.launch {
             _uiState.update { it.copy(isActionInProgress = true) }
-            val connected = apiClient.testConnection()
+            val connected = userRepository.testConnection()
             _uiState.update {
                 it.copy(
                     isActionInProgress = false,
                     isServerConnected = connected,
                     successMessage = if (connected) "Conexión exitosa a Axum Server" else null,
-                    errorMessage = if (!connected) "No se pudo conectar a ${apiClient.baseUrl}" else null
+                    errorMessage = if (!connected) "No se pudo conectar a ${_uiState.value.serverUrl}" else null
                 )
             }
         }
@@ -319,6 +318,6 @@ class UserViewModel(
 
     override fun onCleared() {
         super.onCleared()
-        apiClient.close()
+        userRepository.close()
     }
 }

@@ -134,6 +134,18 @@ Este archivo debe actualizarse cuando se tome una decisión arquitectónica impo
 - Una compilación Android adicional confirmó que `-PAPI_BASE_URL=https://api.example.test` se genera correctamente en `BuildConfig`.
 - La aplicación iOS se compiló completamente para un simulador con `xcodebuild`; el `Info.plist` generado contiene la URL local esperada.
 
+### 2026-09-29 — Repositorio del cliente y pruebas del ViewModel
+
+- Se añadió la interfaz `UserRepository` como límite entre el ViewModel y la red.
+- `KtorUserRepository` adapta el cliente HTTP existente y conserva el contrato actual con Axum.
+- `UserViewModel` recibe el repositorio por constructor y dejó de crear directamente `AxumApiClient`.
+- Compose obtiene el ViewModel mediante el propietario de ciclo de vida de la plataforma; al liberarlo, el repositorio cierra el cliente HTTP.
+- Se añadió un repositorio falso y 9 pruebas para carga, errores, validación, creación, actualización, eliminación, conexión y cambio de URL.
+- Las 9 pruebas pasaron en el host Android y en el simulador iOS.
+- `./gradlew clean check :androidApp:assembleDebug` terminó correctamente.
+- La aplicación iOS completa compiló para simulador y el APK refactorizado se instaló y abrió correctamente en el emulador Android.
+- El emulador Android confirmó conectividad con el backend local en `10.0.2.2:3000` y no registró excepciones de la aplicación.
+
 ## Pendientes conocidos
 
 ### Higiene del repositorio
@@ -142,7 +154,7 @@ Este archivo debe actualizarse cuando se tome una decisión arquitectónica impo
 
 ### Próximas mejoras recomendadas
 
-1. Ampliar pruebas del backend y añadir pruebas del ViewModel.
+1. Ampliar pruebas del contrato HTTP del backend y añadir pruebas críticas de Compose UI.
 2. Añadir health checks, trazabilidad de peticiones y apagado ordenado.
 3. Añadir integración continua.
 

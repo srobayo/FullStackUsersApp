@@ -65,7 +65,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.handleusers.models.User
+import com.example.handleusers.repository.KtorUserRepository
 import com.example.handleusers.viewmodel.ActiveFilter
 import com.example.handleusers.viewmodel.UserViewModel
 
@@ -139,7 +141,12 @@ object AppIcons {
 @Composable
 fun UserManagementScreen(
     serverUrl: String,
-    viewModel: UserViewModel = remember(serverUrl) { UserViewModel(serverUrl) }
+    viewModel: UserViewModel = viewModel(key = serverUrl) {
+        UserViewModel(
+            initialServerUrl = serverUrl,
+            userRepository = KtorUserRepository(serverUrl)
+        )
+    }
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }

@@ -12,6 +12,14 @@ FullStackUsersApp/
 
 The backend exposes a JSON CRUD API under `/api/v1/users`. The mobile client consumes that API to list, create, update, activate, deactivate, and delete users.
 
+The shared client follows this dependency flow:
+
+```text
+Compose UI -> UserViewModel -> UserRepository -> Ktor -> Axum API
+```
+
+`KtorUserRepository` is the production implementation. `UserViewModel` depends only on the repository interface, which allows its loading, validation, CRUD, connection, and error states to be tested without a running backend.
+
 ## Prerequisites
 
 - Rust toolchain and Cargo
@@ -149,9 +157,11 @@ Client checks, from `HandleUsers/`:
 ./gradlew :androidApp:assembleDebug
 ```
 
+The shared test suite runs on the Android host and the iOS simulator as part of `check`.
+
 ## Current development roadmap
 
-1. Expand backend, HTTP contract, ViewModel, and UI tests.
+1. Expand backend HTTP contract and Compose UI tests.
 2. Add health checks, request tracing, timeouts, and graceful shutdown.
 3. Add continuous integration.
 
