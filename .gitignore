@@ -1,0 +1,29 @@
+# Operating system
+.DS_Store
+
+# Local environment and secrets
+.env
+.env.*
+!.env.example
+**/local.properties
+
+# IDE and user-specific files
+**/.idea/
+**/*.iml
+**/xcuserdata/
+**/captures/
+
+# Rust
+**/target/
+
+# Gradle and Kotlin
+**/.gradle/
+**/.kotlin/
+**/build/
+
+# Android native builds
+**/.externalNativeBuild/
+**/.cxx/
+
+# JavaScript tooling, if introduced later
+**/node_modules/
