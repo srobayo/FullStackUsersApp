@@ -32,7 +32,7 @@ impl UserService {
         }
 
         // Verificar si el correo ya existe
-        if let Some(_) = self.repo.find_by_email(&payload.email).await? {
+        if self.repo.find_by_email(&payload.email).await?.is_some() {
             return Err(UserError::EmailAlreadyExists(payload.email));
         }
 
@@ -83,10 +83,8 @@ impl UserService {
                 ));
             }
             // Si el correo cambia, validar que no esté ocupado
-            if email != user.email {
-                if let Some(_) = self.repo.find_by_email(&email).await? {
-                    return Err(UserError::EmailAlreadyExists(email));
-                }
+            if email != user.email && self.repo.find_by_email(&email).await?.is_some() {
+                return Err(UserError::EmailAlreadyExists(email));
             }
             user.email = email;
         }

@@ -8,19 +8,15 @@ use crate::domain::{User, UserError, UserRepository};
 /// Adaptador de Persistencia en Memoria.
 /// Implementa el puerto `UserRepository` utilizando un HashMap thread-safe protegido por RwLock.
 #[allow(dead_code)]
-#[derive(Clone)]
+#[derive(Clone, Default)]
 pub struct InMemoryUserRepository {
-
     store: Arc<RwLock<HashMap<Uuid, User>>>,
 }
 
 #[allow(dead_code)]
 impl InMemoryUserRepository {
-
     pub fn new() -> Self {
-        Self {
-            store: Arc::new(RwLock::new(HashMap::new())),
-        }
+        Self::default()
     }
 }
 
@@ -69,8 +65,8 @@ impl UserRepository for InMemoryUserRepository {
             .write()
             .map_err(|e| UserError::RepositoryError(e.to_string()))?;
 
-        if store.contains_key(&user.id) {
-            store.insert(user.id, user.clone());
+        if let Some(stored_user) = store.get_mut(&user.id) {
+            *stored_user = user.clone();
             Ok(user)
         } else {
             Err(UserError::NotFound(user.id))

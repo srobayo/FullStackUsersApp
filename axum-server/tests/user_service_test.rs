@@ -4,7 +4,6 @@ use axum_server::application::UserService;
 use axum_server::domain::{CreateUserPayload, UserError};
 use axum_server::infrastructure::InMemoryUserRepository;
 
-
 #[tokio::test]
 async fn test_create_user_success() {
     let repo = Arc::new(InMemoryUserRepository::new());

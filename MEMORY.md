@@ -56,33 +56,33 @@ Este archivo debe actualizarse cuando se tome una decisión arquitectónica impo
 - Se restauró `.gitattributes` para normalizar los finales de línea entre macOS, Linux y Windows.
 - `.DS_Store` quedó ignorado y no debe formar parte del repositorio.
 
+### 2026-09-29 — Calidad base del backend Rust
+
+- Todo el backend fue normalizado con `cargo fmt`.
+- Se corrigieron las cinco advertencias conocidas de Clippy sin cambiar el comportamiento funcional:
+  - Las búsquedas opcionales usan `is_some()`.
+  - La validación de correo duplicado durante una actualización se simplificó.
+  - `InMemoryUserRepository` implementa `Default`.
+  - Las actualizaciones en memoria usan `get_mut` y evitan una doble búsqueda en el `HashMap`.
+- `cargo fmt --check`, `cargo check` y Clippy con `-D warnings` terminaron correctamente.
+- `cargo test` terminó correctamente con 3 pruebas superadas.
+
 ## Pendientes conocidos
 
 ### Higiene del repositorio
 
 - El historial anterior del backend no aparece en el repositorio publicado; actualmente GitHub contiene un único commit inicial.
 
-### Deuda técnica del backend
-
-- `cargo fmt --check` detectó diferencias de formato preexistentes.
-- Clippy con `-D warnings` detectó cinco advertencias preexistentes:
-  - Uso redundante de `if let Some(_)`.
-  - Un `if` anidado que puede simplificarse.
-  - Falta una implementación de `Default` para `InMemoryUserRepository`.
-  - Uso de `contains_key` seguido de `insert` en un `HashMap`.
-- Corregir esta deuda en un commit separado de los cambios de infraestructura.
-
 ### Próximas mejoras recomendadas
 
-1. Corregir formato y advertencias de Clippy.
-2. Añadir un entorno PostgreSQL reproducible con `compose.yaml`.
-3. Añadir `.env.example` sin credenciales reales.
-4. Introducir migraciones SQL versionadas.
-5. Centralizar la configuración del backend.
-6. Configurar URLs del servidor por plataforma y entorno en el cliente.
-7. Ampliar pruebas del backend y añadir pruebas del ViewModel.
-8. Añadir health checks, trazabilidad de peticiones y apagado ordenado.
-9. Añadir integración continua.
+1. Añadir un entorno PostgreSQL reproducible con `compose.yaml`.
+2. Añadir `.env.example` sin credenciales reales.
+3. Introducir migraciones SQL versionadas.
+4. Centralizar la configuración del backend.
+5. Configurar URLs del servidor por plataforma y entorno en el cliente.
+6. Ampliar pruebas del backend y añadir pruebas del ViewModel.
+7. Añadir health checks, trazabilidad de peticiones y apagado ordenado.
+8. Añadir integración continua.
 
 ## Reglas para mantener este archivo
 

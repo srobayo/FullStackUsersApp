@@ -1,13 +1,13 @@
 use axum::{
-    routing::{get, post},
     Router,
+    routing::{get, post},
 };
 use utoipa::OpenApi;
 use utoipa_swagger_ui::SwaggerUi;
 
 use super::handlers::{
-    create_user_handler, delete_user_handler, get_user_handler, list_users_handler,
-    update_user_handler, AppState,
+    AppState, create_user_handler, delete_user_handler, get_user_handler, list_users_handler,
+    update_user_handler,
 };
 use super::openapi::ApiDoc;
 

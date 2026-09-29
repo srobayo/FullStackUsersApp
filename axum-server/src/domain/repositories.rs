@@ -1,7 +1,7 @@
-use async_trait::async_trait;
-use uuid::Uuid;
 use super::errors::UserError;
 use super::models::User;
+use async_trait::async_trait;
+use uuid::Uuid;
 
 /// Puerto (Trait) que define los métodos de persistencia para la entidad User.
 /// Siguiendo Arquitectura Limpia, los casos de uso dependen de esta abstracción,

@@ -1,6 +1,6 @@
+use sqlx::postgres::PgPoolOptions;
 use std::env;
 use std::sync::Arc;
-use sqlx::postgres::PgPoolOptions;
 use tokio::net::TcpListener;
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
 
@@ -11,7 +11,7 @@ mod presentation;
 
 use application::UserService;
 use infrastructure::PostgresUserRepository;
-use presentation::{create_router, AppState};
+use presentation::{AppState, create_router};
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -56,7 +56,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let listener = TcpListener::bind(addr).await?;
 
     tracing::info!("🚀 Servidor ejecutándose exitosamente en http://{}", addr);
-    tracing::info!("📚 Documentación Swagger UI disponible en http://{}/swagger-ui/", addr);
+    tracing::info!(
+        "📚 Documentación Swagger UI disponible en http://{}/swagger-ui/",
+        addr
+    );
 
     axum::serve(listener, app).await?;
 
