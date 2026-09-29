@@ -90,6 +90,20 @@ Este archivo debe actualizarse cuando se tome una decisión arquitectónica impo
 - El contenedor de prueba quedó detenido y su volumen `fullstack-users-app_postgres_data` se conservó.
 - El contenedor anterior continuó funcionando en el puerto `5433` durante toda la prueba.
 
+### 2026-09-29 — Transición a la base del monorepo
+
+- Se generaron dos respaldos en el directorio hermano `../FullStackUsersApp-backups/`:
+  - `simple_api_before_monorepo_20260929.dump`, respaldo completo de la base anterior.
+  - `users_before_monorepo_20260929.dump`, respaldo de datos utilizado para la migración.
+- Se migraron 9 usuarios al volumen `fullstack-users-app_postgres_data`.
+- El conteo y la huella MD5 ordenada de los usuarios coincidieron antes y después de la migración.
+- Los contenedores anteriores `simple_axum` y `db` quedaron detenidos, no eliminados.
+- El volumen anterior `axumlive_pg_data` permanece intacto como opción temporal de reversión.
+- PostgreSQL del monorepo está activo y saludable en el puerto `5433`.
+- El backend arrancó correctamente, aplicó/verificó las migraciones y devolvió los 9 usuarios.
+- Se verificó el ciclo crear, actualizar y eliminar con un usuario temporal.
+- El usuario temporal se eliminó y la base terminó nuevamente con 9 usuarios y la huella original.
+
 ## Pendientes conocidos
 
 ### Higiene del repositorio
@@ -98,12 +112,11 @@ Este archivo debe actualizarse cuando se tome una decisión arquitectónica impo
 
 ### Próximas mejoras recomendadas
 
-1. Realizar la transición controlada desde el contenedor anterior hacia la base del monorepo.
-2. Centralizar la configuración del backend.
-3. Configurar URLs del servidor por plataforma y entorno en el cliente.
-4. Ampliar pruebas del backend y añadir pruebas del ViewModel.
-5. Añadir health checks, trazabilidad de peticiones y apagado ordenado.
-6. Añadir integración continua.
+1. Centralizar la configuración del backend.
+2. Configurar URLs del servidor por plataforma y entorno en el cliente.
+3. Ampliar pruebas del backend y añadir pruebas del ViewModel.
+4. Añadir health checks, trazabilidad de peticiones y apagado ordenado.
+5. Añadir integración continua.
 
 ## Reglas para mantener este archivo
 

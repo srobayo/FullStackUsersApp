@@ -46,19 +46,12 @@ docker compose down
 
 `docker compose down` preserves the named database volume. Avoid `docker compose down -v` unless deleting all local database data is intentional.
 
-The database from the project that preceded this monorepo still occupies port `5433`. Until the controlled transition is completed, the monorepo database can be tested alongside it on port `5434`:
+The database transition was completed on 2026-09-29. PostgreSQL managed by this monorepo now uses port `5433` and the `fullstack-users-app_postgres_data` volume. The previous `db` and `simple_axum` containers are stopped but retained as a temporary rollback option.
+
+Check the active database with:
 
 ```bash
-POSTGRES_PORT=5434 docker compose --env-file .env.example up -d --wait postgres
-
-cd axum-server
-DATABASE_URL=postgres://user:password@127.0.0.1:5434/simple_api cargo run
-```
-
-Stop only the monorepo test database from the repository root with:
-
-```bash
-POSTGRES_PORT=5434 docker compose --env-file .env.example stop postgres
+docker compose ps
 ```
 
 The backend reads its connection string from `DATABASE_URL`. If that variable is absent, it currently uses the same local development values as `.env.example`.
@@ -113,10 +106,9 @@ Client checks, from `HandleUsers/`:
 
 ## Current development roadmap
 
-1. Switch safely from the previous database container to the monorepo database.
-2. Move backend and client configuration out of source-code defaults.
-3. Expand backend, HTTP contract, ViewModel, and UI tests.
-4. Add health checks, request tracing, timeouts, and graceful shutdown.
-5. Add continuous integration.
+1. Move backend and client configuration out of source-code defaults.
+2. Expand backend, HTTP contract, ViewModel, and UI tests.
+3. Add health checks, request tracing, timeouts, and graceful shutdown.
+4. Add continuous integration.
 
 Repository-wide development conventions are documented in [AGENTS.md](./AGENTS.md).
