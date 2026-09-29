@@ -124,6 +124,16 @@ Este archivo debe actualizarse cuando se tome una decisión arquitectónica impo
 - El arranque sin `DATABASE_URL` falló de manera controlada y el arranque con `.env.example` funcionó.
 - Se verificaron 9 usuarios, Swagger UI y OpenAPI sobre la configuración tipada.
 
+### 2026-09-29 — URL del API configurable por plataforma
+
+- El código compartido dejó de contener una URL predeterminada de Android y ahora recibe la URL desde el punto de entrada de cada plataforma.
+- Android obtiene `API_BASE_URL` desde `BuildConfig`; el emulador conserva `http://10.0.2.2:3000` como valor local y Gradle permite sobrescribirlo con `-PAPI_BASE_URL=...`.
+- iOS obtiene `API_BASE_URL` desde `Config.xcconfig` e `Info.plist`; el simulador conserva `http://127.0.0.1:3000` como valor local y los build settings de Xcode permiten sobrescribirlo.
+- El diálogo de configuración ya no ofrece presets específicos de plataforma; puede restaurar la URL definida durante la compilación.
+- `./gradlew clean check :androidApp:assembleDebug` terminó correctamente.
+- Una compilación Android adicional confirmó que `-PAPI_BASE_URL=https://api.example.test` se genera correctamente en `BuildConfig`.
+- La aplicación iOS se compiló completamente para un simulador con `xcodebuild`; el `Info.plist` generado contiene la URL local esperada.
+
 ## Pendientes conocidos
 
 ### Higiene del repositorio
@@ -132,10 +142,9 @@ Este archivo debe actualizarse cuando se tome una decisión arquitectónica impo
 
 ### Próximas mejoras recomendadas
 
-1. Configurar URLs del servidor por plataforma y entorno en el cliente.
-2. Ampliar pruebas del backend y añadir pruebas del ViewModel.
-3. Añadir health checks, trazabilidad de peticiones y apagado ordenado.
-4. Añadir integración continua.
+1. Ampliar pruebas del backend y añadir pruebas del ViewModel.
+2. Añadir health checks, trazabilidad de peticiones y apagado ordenado.
+3. Añadir integración continua.
 
 ## Reglas para mantener este archivo
 

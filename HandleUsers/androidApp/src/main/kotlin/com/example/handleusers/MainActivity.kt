@@ -13,7 +13,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         setContent {
-            App()
+            App(serverUrl = BuildConfig.API_BASE_URL)
         }
     }
 }
@@ -21,5 +21,5 @@ class MainActivity : ComponentActivity() {
 @Preview
 @Composable
 fun AppAndroidPreview() {
-    App()
+    App(serverUrl = BuildConfig.API_BASE_URL)
 }

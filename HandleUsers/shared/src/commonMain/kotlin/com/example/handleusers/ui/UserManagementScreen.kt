@@ -138,7 +138,8 @@ object AppIcons {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun UserManagementScreen(
-    viewModel: UserViewModel = remember { UserViewModel() }
+    serverUrl: String,
+    viewModel: UserViewModel = remember(serverUrl) { UserViewModel(serverUrl) }
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
@@ -308,6 +309,7 @@ fun UserManagementScreen(
     if (uiState.showServerConfigDialog) {
         ServerConfigDialog(
             currentUrl = uiState.serverUrl,
+            defaultUrl = serverUrl,
             isConnected = uiState.isServerConnected,
             isTesting = uiState.isActionInProgress,
             onDismiss = { viewModel.closeServerConfigDialog() },
@@ -748,6 +750,7 @@ fun DeleteUserConfirmationDialog(
 @Composable
 fun ServerConfigDialog(
     currentUrl: String,
+    defaultUrl: String,
     isConnected: Boolean?,
     isTesting: Boolean,
     onDismiss: () -> Unit,
@@ -776,23 +779,12 @@ fun ServerConfigDialog(
                     modifier = Modifier.fillMaxWidth()
                 )
 
-                Text("Presets rápidos:", fontSize = 12.sp, fontWeight = FontWeight.Medium)
-
-                Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                    Button(
-                        onClick = { urlText = "http://10.0.2.2:3000" },
-                        colors = ButtonDefaults.outlinedButtonColors(),
-                        modifier = Modifier.weight(1f)
-                    ) {
-                        Text("Android (10.0.2.2)", fontSize = 11.sp)
-                    }
-                    Button(
-                        onClick = { urlText = "http://127.0.0.1:3000" },
-                        colors = ButtonDefaults.outlinedButtonColors(),
-                        modifier = Modifier.weight(1f)
-                    ) {
-                        Text("iOS/Localhost", fontSize = 11.sp)
-                    }
+                Button(
+                    onClick = { urlText = defaultUrl },
+                    colors = ButtonDefaults.outlinedButtonColors(),
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text("Restaurar URL de compilación", fontSize = 12.sp)
                 }
 
                 Row(verticalAlignment = Alignment.CenterVertically) {

@@ -42,6 +42,31 @@ Backend settings:
 
 The backend validates these values before connecting to PostgreSQL. It exits with a clear error when `DATABASE_URL` is missing or when a numeric/network value is invalid. Connection credentials are not printed in application logs.
 
+### Client API URL
+
+The shared Kotlin code receives the API base URL from each platform entry point; it does not contain an Android or iOS runtime default.
+
+Android uses `http://10.0.2.2:3000` by default so the emulator can reach the development host. Override it at build time with the `API_BASE_URL` Gradle property:
+
+```bash
+cd HandleUsers
+./gradlew :androidApp:assembleDebug -PAPI_BASE_URL=https://api.example.com
+```
+
+iOS reads `API_BASE_URL` from `iosApp/Configuration/Config.xcconfig` through the application `Info.plist`. Its local default is `http://127.0.0.1:3000` for the simulator. Xcode build settings or the command line can override it for another environment:
+
+```bash
+cd HandleUsers
+xcodebuild \
+  -project iosApp/iosApp.xcodeproj \
+  -scheme iosApp \
+  -configuration Debug \
+  API_BASE_URL=https://api.example.com \
+  build
+```
+
+Use a reachable LAN address when testing on a physical device. Staging and production builds should use an HTTPS endpoint. The server configuration dialog can temporarily change the URL while the application is running or restore the platform's build-time value.
+
 `compose.yaml` defines PostgreSQL 15, a persistent named volume, and a readiness health check. Validate the resolved configuration with:
 
 ```bash
@@ -100,11 +125,11 @@ Open `HandleUsers/` in Android Studio or build it from that directory:
 ./gradlew :androidApp:assembleDebug
 ```
 
-The Android emulator reaches a backend running on the development host through `http://10.0.2.2:3000`.
+The Android emulator reaches a backend running on the development host through the build's default URL, `http://10.0.2.2:3000`.
 
 ## Run the iOS client
 
-Open `HandleUsers/iosApp/` in Xcode and run the `iosApp` scheme. Local backend addressing differs between the iOS simulator and physical devices and must be configured accordingly.
+Open `HandleUsers/iosApp/` in Xcode and run the `iosApp` scheme. The simulator build defaults to `http://127.0.0.1:3000`; configure a reachable address for a physical device.
 
 ## Checks
 
@@ -126,9 +151,8 @@ Client checks, from `HandleUsers/`:
 
 ## Current development roadmap
 
-1. Move backend and client configuration out of source-code defaults.
-2. Expand backend, HTTP contract, ViewModel, and UI tests.
-3. Add health checks, request tracing, timeouts, and graceful shutdown.
-4. Add continuous integration.
+1. Expand backend, HTTP contract, ViewModel, and UI tests.
+2. Add health checks, request tracing, timeouts, and graceful shutdown.
+3. Add continuous integration.
 
 Repository-wide development conventions are documented in [AGENTS.md](./AGENTS.md).

@@ -21,7 +21,7 @@ import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.json.Json
 
 class AxumApiClient(
-    initialBaseUrl: String = "http://10.0.2.2:3000"
+    initialBaseUrl: String
 ) {
     var baseUrl: String = initialBaseUrl.trimEnd('/')
 

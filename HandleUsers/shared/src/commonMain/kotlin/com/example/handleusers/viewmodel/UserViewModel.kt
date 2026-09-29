@@ -22,7 +22,7 @@ data class UserUiState(
     val successMessage: String? = null,
     val searchQuery: String = "",
     val activeFilter: ActiveFilter = ActiveFilter.ALL,
-    val serverUrl: String = "http://10.0.2.2:3000",
+    val serverUrl: String = "",
     val isServerConnected: Boolean? = null,
     val selectedUserForEdit: User? = null,
     val showUserDialog: Boolean = false,
@@ -51,7 +51,7 @@ data class UserUiState(
 }
 
 class UserViewModel(
-    initialServerUrl: String = "http://10.0.2.2:3000"
+    initialServerUrl: String
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(UserUiState(serverUrl = initialServerUrl))

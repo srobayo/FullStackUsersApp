@@ -1,5 +1,8 @@
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
+val apiBaseUrl = providers.gradleProperty("API_BASE_URL")
+    .orElse("http://10.0.2.2:3000")
+
 plugins {
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.composeCompiler)
@@ -29,6 +32,7 @@ android {
         targetSdk = libs.versions.android.targetSdk.get().toInt()
         versionCode = 1
         versionName = "1.0"
+        buildConfigField("String", "API_BASE_URL", "\"${apiBaseUrl.get()}\"")
     }
     packaging {
         resources {
@@ -50,5 +54,6 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true
     }
 }

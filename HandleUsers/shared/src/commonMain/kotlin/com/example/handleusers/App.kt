@@ -23,13 +23,18 @@ private val LightColors = lightColorScheme(
 )
 
 @Composable
-@Preview
-fun App() {
+fun App(serverUrl: String) {
     MaterialTheme(
         colorScheme = LightColors
     ) {
         Surface {
-            UserManagementScreen()
+            UserManagementScreen(serverUrl = serverUrl)
         }
     }
+}
+
+@Preview
+@Composable
+private fun AppPreview() {
+    App(serverUrl = "http://example.test")
 }
